@@ -36,7 +36,7 @@ st.title("Terminal FDE - Radar Sentimen")
 search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 
 # --- Mengambil Data Real-Time dari Google Sheets ---
-url_gsheets = "PASTE_URL_CSV_GOOGLE_SHEETS_ANDA_DI_SINI"
+url_gsheets = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQA7bCZ_sqCZGDRIhPSIXT9HpU85MvXi1nNSgKE988e9Avx_tcoCzMwqE_WB7ujtHntOSJnwNkNLiwq/pub?gid=2023745794&single=true&output=csv"
 
 # Membaca data dengan Pandas
 df_berita = pd.read_csv(url_gsheets)
