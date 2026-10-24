@@ -46,7 +46,6 @@ df_berita.columns = df_berita.columns.str.lower()
 
 # Memastikan kolom 'skor' dibaca sebagai angka
 df_berita['skor'] = pd.to_numeric(df_berita['skor'], errors='coerce').fillna(0)
-df_berita = pd.DataFrame(data_berita)
 
 if search_query:
     df_berita = df_berita[df_berita.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
