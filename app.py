@@ -36,11 +36,11 @@ st.title("Terminal FDE - Radar Sentimen")
 search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 
 # --- Mockup Data Berita (Nanti diganti dengan data dari API/Database) ---
-data_berita = [
-    {"judul": "The Fed Pangkas Suku Bunga, Pasar Global Melonjak", "skor": 90, "emiten": "BBCA, BMRI", "sumber": "Reuters"},
-    {"judul": "Laba Kuartal III Emiten Tambang Naik Tipis", "skor": 45, "emiten": "ADRO, PTBA", "sumber": "Bisnis.com"},
-    {"judul": "Harga Batu Bara Acuan Terkoreksi 2%", "skor": -30, "emiten": "ITMG", "sumber": "CNBC"},
-    {"judul": "Volume Transaksi Sektor Energi Tiba-tiba Breakout", "skor": 85, "emiten": "MEDC, ENRG", "sumber": "AI Alert"}
+data_berita = [url_gsheets = "PASTE_URL_CSV_GOOGLE_SHEETS_ANDA_DI_SINI"
+
+# Membaca data dengan Pandas, dan memastikan kolom Skor dibaca sebagai angka
+df_berita = pd.read_csv(url_gsheets)
+df_berita['Skor'] = pd.to_numeric(df_berita['Skor'], errors='coerce').fillna(0)
 ]
 df_berita = pd.DataFrame(data_berita)
 
