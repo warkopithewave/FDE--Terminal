@@ -35,13 +35,17 @@ with st.sidebar:
 st.title("Terminal FDE - Radar Sentimen")
 search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 
-# --- Mockup Data Berita (Nanti diganti dengan data dari API/Database) ---
-data_berita = [url_gsheets = "PASTE_URL_CSV_GOOGLE_SHEETS_ANDA_DI_SINI"
+# --- Mengambil Data Real-Time dari Google Sheets ---
+url_gsheets = "PASTE_URL_CSV_GOOGLE_SHEETS_ANDA_DI_SINI"
 
-# Membaca data dengan Pandas, dan memastikan kolom Skor dibaca sebagai angka
+# Membaca data dengan Pandas
 df_berita = pd.read_csv(url_gsheets)
-df_berita['Skor'] = pd.to_numeric(df_berita['Skor'], errors='coerce').fillna(0)
-]
+
+# Memastikan nama kolom menjadi huruf kecil semua agar sesuai dengan kode pemanggilan di bawahnya
+df_berita.columns = df_berita.columns.str.lower()
+
+# Memastikan kolom 'skor' dibaca sebagai angka
+df_berita['skor'] = pd.to_numeric(df_berita['skor'], errors='coerce').fillna(0)
 df_berita = pd.DataFrame(data_berita)
 
 if search_query:
