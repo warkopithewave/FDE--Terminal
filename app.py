@@ -1,70 +1,98 @@
 import streamlit as st
 import pandas as pd
 
-# --- Konfigurasi Halaman & Estetika Visual ---
-st.set_page_config(page_title="FDE Terminal", layout="wide", initial_sidebar_state="expanded")
+# 1. Pengaturan Halaman Dasar
+st.set_page_config(page_title="Terminal FDE - Radar Sentimen", layout="wide")
 
-st.markdown("""
-    <style>
-    /* Latar belakang warm cream, teks taupe/coklat pudar */
-    .stApp { background-color: #F8F7F3; color: #4A4640; }
-    
-    /* Desain Kartu Berita */
-    .hot-news { background-color: #E8D5C4; padding: 15px; border-left: 5px solid #D97757; border-radius: 5px; margin-bottom: 10px; }
-    .good-news { background-color: #EAECE5; padding: 15px; border-left: 5px solid #849C82; border-radius: 5px; margin-bottom: 10px; }
-    .bad-news { background-color: #F2E3E1; padding: 15px; border-left: 5px solid #B57F78; border-radius: 5px; margin-bottom: 10px; }
-    
-    /* Elemen teks */
-    h1, h2, h3 { color: #4A4640 !important; }
-    </style>
-""", unsafe_allow_html=True)
-
-# --- Sidebar: Dukungan & Komunitas ---
-with st.sidebar:
-    st.subheader("☕ Dukung FDE")
-    st.markdown("Jika terminal ini membantu riset Anda, dukung pengembangannya:")
-    st.link_button("Dukung via Saweria", "https://saweria.co/username", use_container_width=True)
-    st.link_button("Dukung via SociaBuzz", "https://sociabuzz.com/username/tribe", use_container_width=True)
-    
-    st.divider()
-    st.markdown("**Komunitas:**")
-    st.link_button("💬 Grup Telegram", "https://t.me/linkgrup", use_container_width=True)
-    st.caption("FDE Terminal v1.0 | Data by AI")
-
-# --- Header & Pencarian ---
+# 2. Judul Dashboard
 st.title("Terminal FDE - Radar Sentimen")
+
+# 3. Fitur Pencarian (Search Bar)
 search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 
-# --- Mockup Data Berita (Nanti diganti dengan data dari API/Database) ---
-data_berita = [
-    {"judul": "The Fed Pangkas Suku Bunga, Pasar Global Melonjak", "skor": 90, "emiten": "BBCA, BMRI", "sumber": "Reuters"},
-    {"judul": "Laba Kuartal III Emiten Tambang Naik Tipis", "skor": 45, "emiten": "ADRO, PTBA", "sumber": "Bisnis.com"},
-    {"judul": "Harga Batu Bara Acuan Terkoreksi 2%", "skor": -30, "emiten": "ITMG", "sumber": "CNBC"},
-    {"judul": "Volume Transaksi Sektor Energi Tiba-tiba Breakout", "skor": 85, "emiten": "MEDC, ENRG", "sumber": "AI Alert"}
-]
-df_berita = pd.DataFrame(data_berita)
+# 4. Fungsi Mengambil Data dari Google Sheets
+# ttl=60 artinya aplikasi akan otomatis me-refresh data baru setiap 60 detik
+@st.cache_data(ttl=60)
+def load_data():
+    # Masukkan link CSV Public Google Sheets Anda di sini
+    # (Link di bawah ini adalah contoh dari tangkapan layar Make.com Anda sebelumnya)
+    sheet_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQA7bCZ_sqCZGDRlhPSlXT9HpU85MvXi1nNSgKE988e9Avx_tcoCzMwqE_WB7ujtHntOSJnwNkNLiwq/pub?gid=2023745794&single=true&output=csv"
+    
+    try:
+        df = pd.read_csv(sheet_csv_url)
+        # Mengubah baris agar berita terbaru (paling bawah di Sheets) tampil paling atas di web
+        return df.iloc[::-1]
+    except Exception as e:
+        st.error(f"Gagal memuat data dari Google Sheets: {e}")
+        return pd.DataFrame()
 
-if search_query:
-    df_berita = df_berita[df_berita.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+df = load_data()
 
-# --- Layout Utama: 3 Kolom Berita ---
-st.markdown("---")
-col1, col2, col3 = st.columns(3)
+# 5. Memproses Data & Layout Tampilan
+if not df.empty:
+    
+    # Filter data jika pengguna mengetik sesuatu di Search Bar
+    if search_query:
+        df = df[df['judul'].str.contains(search_query, case=False, na=False) | 
+                df['emiten'].str.contains(search_query, case=False, na=False)]
 
-with col1:
-    st.subheader("🔥 Hot News / Urgent")
-    for index, row in df_berita.iterrows():
-        if row['skor'] >= 80 or row['skor'] <= -80:
-            st.markdown(f"<div class='hot-news'><b>{row['judul']}</b><br>Skor: {row['skor']}<br>Katalis: {row['emiten']}<br><i>{row['sumber']}</i></div>", unsafe_allow_html=True)
+    # Membagi layar menjadi 3 kolom
+    col1, col2, col3 = st.columns(3)
 
-with col2:
-    st.subheader("📈 Good News")
-    for index, row in df_berita.iterrows():
-        if 0 < row['skor'] < 80:
-            st.markdown(f"<div class='good-news'><b>{row['judul']}</b><br>Skor: {row['skor']}<br>Katalis: {row['emiten']}<br><i>{row['sumber']}</i></div>", unsafe_allow_html=True)
+    # ================= KOLOM 1: HOT NEWS =================
+    with col1:
+        st.subheader("🔥 Hot News / Urgent")
+        hot_news = df[df['kategori'].str.contains('Hot', case=False, na=False)]
+        
+        for _, row in hot_news.iterrows():
+            # Menggunakan row.get('tanggal', row['waktu']) agar jika kolom tanggal kosong, ia otomatis memakai waktu Make.com
+            tanggal_tampil = row.get('tanggal', row['waktu']) 
+            
+            st.markdown(f"""
+                <div style="background-color: #fbece5; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #d9534f;">
+                    <strong style="font-size: 16px; color: #222;">{row['judul']}</strong><br>
+                    <small style="color: #666;">📅 {tanggal_tampil}</small><br><br>
+                    <span style="color: #333;">Skor: <b>{row['skor']}</b></span><br>
+                    <span style="color: #333;">Katalis: <b>{row['emiten']}</b></span><br>
+                    <em style="color: #888; font-size: 13px;">Sumber: {row['sumber']}</em>
+                </div>
+            """, unsafe_allow_html=True)
 
-with col3:
-    st.subheader("📉 Bad News")
-    for index, row in df_berita.iterrows():
-        if -80 < row['skor'] < 0:
-            st.markdown(f"<div class='bad-news'><b>{row['judul']}</b><br>Skor: {row['skor']}<br>Katalis: {row['emiten']}<br><i>{row['sumber']}</i></div>", unsafe_allow_html=True)
+    # ================= KOLOM 2: GOOD NEWS =================
+    with col2:
+        st.subheader("📈 Good News")
+        good_news = df[df['kategori'].str.contains('Good', case=False, na=False)]
+        
+        for _, row in good_news.iterrows():
+            tanggal_tampil = row.get('tanggal', row['waktu'])
+            
+            st.markdown(f"""
+                <div style="background-color: #eaf1ea; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #5cb85c;">
+                    <strong style="font-size: 16px; color: #222;">{row['judul']}</strong><br>
+                    <small style="color: #666;">📅 {tanggal_tampil}</small><br><br>
+                    <span style="color: #333;">Skor: <b>{row['skor']}</b></span><br>
+                    <span style="color: #333;">Katalis: <b>{row['emiten']}</b></span><br>
+                    <em style="color: #888; font-size: 13px;">Sumber: {row['sumber']}</em>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # ================= KOLOM 3: BAD NEWS =================
+    with col3:
+        st.subheader("📉 Bad News")
+        bad_news = df[df['kategori'].str.contains('Bad', case=False, na=False)]
+        
+        for _, row in bad_news.iterrows():
+            tanggal_tampil = row.get('tanggal', row['waktu'])
+            
+            st.markdown(f"""
+                <div style="background-color: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid #777;">
+                    <strong style="font-size: 16px; color: #222;">{row['judul']}</strong><br>
+                    <small style="color: #666;">📅 {tanggal_tampil}</small><br><br>
+                    <span style="color: #333;">Skor: <b>{row['skor']}</b></span><br>
+                    <span style="color: #333;">Katalis: <b>{row['emiten']}</b></span><br>
+                    <em style="color: #888; font-size: 13px;">Sumber: {row['sumber']}</em>
+                </div>
+            """, unsafe_allow_html=True)
+
+else:
+    st.info("Sistem Terminal FDE sedang memantau RSS. Belum ada data berita yang masuk.")
