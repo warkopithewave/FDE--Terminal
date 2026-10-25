@@ -16,7 +16,7 @@ search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 def load_data():
     # Masukkan link CSV Public Google Sheets Anda di sini
     # (Link di bawah ini adalah contoh dari tangkapan layar Make.com Anda sebelumnya)
-    sheet_csv_url = st.secrets["SHEET_CSV_URL"]
+    sheet_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQA7bCZ_sqCZGDRlhPSlXT9HpU85MvXi1nNSgKE988e9Avx_tcoCzMwqE_WB7ujtHntOSJnwNkNLiwq/pub?gid=2023745794&single=true&output=csv"
     
     try:
         df = pd.read_csv(sheet_csv_url)
