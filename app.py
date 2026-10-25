@@ -14,9 +14,9 @@ except ImportError:
 # PENGATURAN: EDIT BAGIAN INI
 # ============================================================
 # Isi link di dalam tanda kutip. Yang dikosongkan tidak akan ditampilkan.
-LINK_SAWERIA = ""     # contoh: "https://saweria.co/namaanda"
-LINK_SOCIABUZZ = ""   # contoh: "https://sociabuzz.com/namaanda/tribe"
-LINK_TELEGRAM = ""    # contoh: "https://t.me/namaanda"
+LINK_SAWERIA = "https://saweria.co/Localcoffe"     # contoh: "https://saweria.co/namaanda"
+LINK_SOCIABUZZ = "https://sociabuzz.com/localcoffegaming/tribe"   # contoh: "https://sociabuzz.com/namaanda/tribe"
+LINK_TELEGRAM = "t.me/FDEwithyours"    # contoh: "https://t.me/namaanda"
 
 # Opsional: kalau punya gambar QR sendiri (misalnya QRIS), taruh filenya di folder
 # yang sama dengan app.py di GitHub, lalu tulis namanya di sini.
