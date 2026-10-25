@@ -33,6 +33,12 @@ st.set_page_config(page_title="Terminal FDE - Radar Sentimen", page_icon="📡",
 
 CSS = """
 <style>
+/* Label tab Support */
+button[data-baseweb="tab"] p{font-size:1rem !important;font-weight:600 !important;color:#4a4a47 !important;}
+button[data-baseweb="tab"]:hover p{color:#1b1b1a !important;}
+button[data-baseweb="tab"][aria-selected="true"] p{color:#1b1b1a !important;}
+div[data-baseweb="tab-highlight"]{background-color:#1b1b1a !important;}
+div[data-baseweb="tab-border"]{background-color:#dcdcd6 !important;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 :root{--ink:#1b1b1a;--ink2:#4a4a47;--muted:#8a8a85;--line:#dcdcd6;--paper:#f4f4f1;--card:#ffffff;}
 .stApp{background:var(--paper);color:var(--ink);}
