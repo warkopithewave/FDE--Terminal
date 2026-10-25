@@ -42,7 +42,7 @@ div[data-baseweb="tab-border"]{background-color:#dcdcd6 !important;}
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 :root{--ink:#1b1b1a;--ink2:#4a4a47;--muted:#8a8a85;--line:#dcdcd6;--paper:#f4f4f1;--card:#ffffff;}
 .stApp{background:var(--paper);color:var(--ink);}
-.block-container{padding-top:2rem;max-width:1400px;}
+.block-container{padding-top:4.5rem !important;max-width:1400px;}
 footer{visibility:hidden;}
 [data-testid="stCaptionContainer"],[data-testid="stCaptionContainer"] p{color:var(--muted);}
 div[data-baseweb="input"]{background:#ffffff;border:1px solid var(--line);border-radius:10px;}
