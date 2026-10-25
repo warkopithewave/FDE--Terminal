@@ -180,30 +180,36 @@ def kartu_html(row, kelas, label):
 
     teks_judul = esc(bersih(row["judul"], "(tanpa judul)"))
     
-    # --- FITUR BARU: Pemisah URL Otomatis ---
+    # 1. Melacak letak URL (dari kolom 'link', 'url', atau yang terselip di 'sumber')
+    url_asli = ""
     sumber_mentah = str(row.get("sumber", ""))
-    idx_http = sumber_mentah.find("http") # Mencari posisi awal link
     
+    # Cek jika ada kolom terpisah bernama 'link' atau 'url'
+    if "link" in row and pd.notna(row["link"]) and str(row["link"]).strip() != "":
+        url_asli = str(row["link"]).strip()
+    elif "url" in row and pd.notna(row["url"]) and str(row["url"]).strip() != "":
+        url_asli = str(row["url"]).strip()
+    
+    # Cek jika URL masih bergabung dengan nama portal (contoh: Antara Newshttps://...)
+    idx_http = sumber_mentah.find("http")
     if idx_http != -1:
-        # Memisahkan nama portal dan URL panjangnya
         nama_sumber = sumber_mentah[:idx_http].strip()
-        url_sumber = sumber_mentah[idx_http:].strip()
-        
-        # Jaga-jaga jika nama portal kosong
-        if not nama_sumber:
-            nama_sumber = "Portal Berita"
-            
-        # Membungkus URL panjang menjadi tombol "[Baca 🔗]" yang rapi
-        sumber_tampil = f'{esc(nama_sumber)} <a href="{html.escape(url_sumber, quote=True)}" target="_blank" style="color:var(--muted); text-decoration:underline;">[Baca 🔗]</a>'
+        if not url_asli: # Pakai URL ini jika belum ada dari kolom terpisah
+            url_asli = sumber_mentah[idx_http:].strip()
+        sumber_tampil = esc(nama_sumber) if nama_sumber else "Portal Berita"
     else:
         sumber_tampil = esc(bersih(sumber_mentah))
-    # ---------------------------------------
 
-    url_judul = str(row.get("link", "")).strip()
-    if url_judul.lower().startswith(("http://", "https://")):
-        judul = f'<a class="judul" href="{html.escape(url_judul, quote=True)}" target="_blank" rel="noopener noreferrer">{teks_judul}</a>'
+    # 2. Merakit Tampilan Judul & Tombol URL
+    if url_asli.lower().startswith(("http://", "https://")):
+        # Buat judul menjadi biru dan bisa diklik
+        judul = f'<a class="judul" href="{html.escape(url_asli, quote=True)}" target="_blank" rel="noopener noreferrer" style="color:#007BFF;">{teks_judul}</a>'
+        # Buat tombol [Baca] di sebelah kanan sumber
+        sumber_html = f'<span>{sumber_tampil} &nbsp;<a href="{html.escape(url_asli, quote=True)}" target="_blank" style="color:var(--muted); text-decoration:underline;">[Baca 🔗]</a></span>'
     else:
+        # Jika tidak ada URL sama sekali
         judul = f'<div class="judul">{teks_judul}</div>'
+        sumber_html = f'<span>{sumber_tampil}</span>'
 
     return (
         f'<div class="kartu {kelas}">'
@@ -211,10 +217,9 @@ def kartu_html(row, kelas, label):
         f"{judul}"
         f'<div class="skor"><span>Skor <b>{esc(skor_teks)}</b></span>{bar}</div>'
         f'<div class="meta"><span>Katalis <b>{esc(bersih(row["emiten"]))}</b></span>'
-        f'<span>{sumber_tampil}</span></div>' # <--- Variabel sumber_tampil dipanggil di sini
+        f'{sumber_html}</div>'
         f"</div>"
     )
-
 
 def tampil_kolom(judul, df_kat, kelas, label):
     n = len(df_kat)
