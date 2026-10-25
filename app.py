@@ -179,9 +179,29 @@ def kartu_html(row, kelas, label):
     bar = f'<div class="bar"><i style="width:{persen:.0f}%"></i></div>' if persen is not None else '<div class="bar"></div>'
 
     teks_judul = esc(bersih(row["judul"], "(tanpa judul)"))
-    url = str(row.get("link", "")).strip()
-    if url.lower().startswith(("http://", "https://")):
-        judul = f'<a class="judul" href="{html.escape(url, quote=True)}" target="_blank" rel="noopener noreferrer">{teks_judul}</a>'
+    
+    # --- FITUR BARU: Pemisah URL Otomatis ---
+    sumber_mentah = str(row.get("sumber", ""))
+    idx_http = sumber_mentah.find("http") # Mencari posisi awal link
+    
+    if idx_http != -1:
+        # Memisahkan nama portal dan URL panjangnya
+        nama_sumber = sumber_mentah[:idx_http].strip()
+        url_sumber = sumber_mentah[idx_http:].strip()
+        
+        # Jaga-jaga jika nama portal kosong
+        if not nama_sumber:
+            nama_sumber = "Portal Berita"
+            
+        # Membungkus URL panjang menjadi tombol "[Baca 🔗]" yang rapi
+        sumber_tampil = f'{esc(nama_sumber)} <a href="{html.escape(url_sumber, quote=True)}" target="_blank" style="color:var(--muted); text-decoration:underline;">[Baca 🔗]</a>'
+    else:
+        sumber_tampil = esc(bersih(sumber_mentah))
+    # ---------------------------------------
+
+    url_judul = str(row.get("link", "")).strip()
+    if url_judul.lower().startswith(("http://", "https://")):
+        judul = f'<a class="judul" href="{html.escape(url_judul, quote=True)}" target="_blank" rel="noopener noreferrer">{teks_judul}</a>'
     else:
         judul = f'<div class="judul">{teks_judul}</div>'
 
@@ -191,7 +211,7 @@ def kartu_html(row, kelas, label):
         f"{judul}"
         f'<div class="skor"><span>Skor <b>{esc(skor_teks)}</b></span>{bar}</div>'
         f'<div class="meta"><span>Katalis <b>{esc(bersih(row["emiten"]))}</b></span>'
-        f'<span>{esc(bersih(row["sumber"]))}</span></div>'
+        f'<span>{sumber_tampil}</span></div>' # <--- Variabel sumber_tampil dipanggil di sini
         f"</div>"
     )
 
