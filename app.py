@@ -10,22 +10,27 @@ st.title("Terminal FDE - Radar Sentimen")
 # 3. Fitur Pencarian (Search Bar)
 search_query = st.text_input("🔍 Cari Ticker Emiten, Topik, atau Keyword:")
 
+REQUIRED_COLS = ["judul", "emiten", "kategori", "waktu", "skor", "sumber"]
 # 4. Fungsi Mengambil Data dari Google Sheets
 # ttl=60 artinya aplikasi akan otomatis me-refresh data baru setiap 60 detik
 @st.cache_data(ttl=60)
 def load_data():
-    # Masukkan link CSV Public Google Sheets Anda di sini
-    # (Link di bawah ini adalah contoh dari tangkapan layar Make.com Anda sebelumnya)
-    sheet_csv_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQA7bCZ_sqCZGDRlhPSlXT9HpU85MvXi1nNSgKE988e9Avx_tcoCzMwqE_WB7ujtHntOSJnwNkNLiwq/pub?gid=2023745794&single=true&output=csv"
-    
     try:
-        df = pd.read_csv(sheet_csv_url)
-        # Mengubah baris agar berita terbaru (paling bawah di Sheets) tampil paling atas di web
-        return df.iloc[::-1]
+        df = pd.read_csv(st.secrets["SHEET_CSV_URL"])  # simpan link di Secrets Streamlit
     except Exception as e:
-        st.error(f"Gagal memuat data dari Google Sheets: {e}")
-        return pd.DataFrame()
+        return None, f"Gagal memuat data: {e}"
 
+    missing = [c for c in REQUIRED_COLS if c not in df.columns]
+    if missing:
+        return None, f"Kolom tidak ditemukan di sheet: {missing}. Kolom yang ada: {list(df.columns)}"
+    return df.iloc[::-1], None
+
+df, err = load_data()
+if err:
+    st.error(err)
+elif df.empty:
+    st.info("Sistem Terminal FDE sedang memantau RSS. Belum ada data berita yang masuk.")
+else:
 df = load_data()
 
 # 5. Memproses Data & Layout Tampilan
