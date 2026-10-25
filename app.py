@@ -58,7 +58,7 @@ SAMPLES = [
         ),
     },
     {
-        "label": "🪷 Sutasoma",
+        "label": "📚 Sutasoma",
         "title": "Kakawin Sutasoma",
         "author": "Mpu Tantular",
         "meta": "Kakawin · Jawa Kuno, abad ke-14",
